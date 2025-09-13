@@ -1,10 +1,10 @@
-مستندات کامل کتابخانه RubikaBot
+# مستندات کامل کتابخانه RubikaBot
 
-📚 RubikaBot PHP Library
+# 📚 RubikaBot PHP Library
 
 یک کتابخانه قدرتمند و ساده برای ساخت ربات‌های روبیکا با PHP.
 
-📦 نصب و راه‌اندازی
+# 📦 نصب و راه‌اندازی
 
 نیازمندی‌ها
 
@@ -12,21 +12,21 @@
 · فعال بودن extension curl
 · توکن ربات روبیکا
 
-نصب
+# نصب
 
 ```php
 // شامل کردن فایل‌های کتابخانه
-require_once 'RubikaBot/Bot.php';
-require_once 'RubikaBot/Message.php';
-require_once 'RubikaBot/Filters/Filter.php';
-require_once 'RubikaBot/Filters/Filters.php';
-require_once 'RubikaBot/Types/ChatType.php';
-require_once 'RubikaBot/Keyboard/Button.php';
-require_once 'RubikaBot/Keyboard/Keypad.php';
-require_once 'RubikaBot/Keyboard/KeypadRow.php';
+require_once 'Rubika-Bot/Bot.php';
+require_once 'Rubika-Bot/Message.php';
+require_once 'Rubika-Bot/Filters/Filter.php';
+require_once 'Rubika-Bot/Filters/Filters.php';
+require_once 'Rubika-Bot/Types/ChatType.php';
+require_once 'Rubika-Bot/Keyboard/Button.php';
+require_once 'Rubika-Bot/Keyboard/Keypad.php';
+require_once 'Rubika-Bot/Keyboard/KeypadRow.php';
 ```
 
-🚀 شروع سریع
+# 🚀 شروع سریع
 
 ```php
 use RubikaBot\Bot;
@@ -43,13 +43,13 @@ $bot->onMessage(Filters::command('start'), function(Bot $bot, $message) {
 $bot->run();
 ```
 
-📋 کلاس Bot
+# 📋 کلاس Bot
 
 متدهای اصلی
 
 __construct(string $token, array $config = [])
 
-ساخت نمونه ربات
+# ساخت نمونه ربات
 
 ```php
 $bot = new Bot('your_bot_token', [
@@ -61,7 +61,7 @@ $bot = new Bot('your_bot_token', [
 
 onMessage($filter, callable $callback)
 
-ثبت هندلر برای پیام‌ها
+# ثبت هندلر برای پیام‌ها
 
 ```php
 $bot->onMessage(Filters::text('سلام'), function(Bot $bot, $message) {
@@ -71,13 +71,13 @@ $bot->onMessage(Filters::text('سلام'), function(Bot $bot, $message) {
 
 run()
 
-اجرای ربات
+# اجرای ربات
 
 ```php
 $bot->run();
 ```
 
-متدهای ارسال پیام
+# متدهای ارسال پیام
 
 chat(string $chat_id)
 
@@ -124,7 +124,7 @@ $bot->chat('123456789')
     ->sendPoll();
 ```
 
-مدیریت کیبورد
+# مدیریت کیبورد
 
 chatKeypad(array $keypad, ?string $keypad_type = 'New')
 
@@ -143,7 +143,7 @@ inlineKeypad(array $keypad)
 $bot->inlineKeypad($keypad->toArray());
 ```
 
-🎛️ کلاس Filters
+# 🎛️ کلاس Filters
 
 فیلترهای موجود
 
@@ -205,7 +205,7 @@ spam(int $maxMessages = 5, int $timeWindow = 10, int $cooldown = 120)
 Filters::spam(5, 10, 120); // 5 پیام در 10 ثانیه
 ```
 
-⌨️ کلاس‌های کیبورد
+# ⌨️ کلاس‌های کیبورد
 
 Keypad
 
@@ -252,7 +252,7 @@ Button::numberPicker('id', 'عنوان', 1, 100, 50);
 Button::link('id', 'عنوان', 'url', $linkObject);
 ```
 
-💬 کلاس Message
+# 💬 کلاس Message
 
 ویژگی‌ها
 
@@ -274,7 +274,7 @@ $message->replyFile($bot); // پاسخ با فایل
 $message->delete($bot); // حذف پیام
 ```
 
-🛡️ مدیریت اسپم
+# 🛡️ مدیریت اسپم
 
 ```php
 // تنظیم محدودیت اسپم
@@ -291,7 +291,7 @@ if ($bot->isUserSpamming($userId)) {
 $bot->resetUserSpamState($userId);
 ```
 
-🌐 متدهای API
+# 🌐 متدهای API
 
 getMe()
 
@@ -330,7 +330,7 @@ $bot->setCommands([
 ]);
 ```
 
-📁 مدیریت فایل
+# 📁 مدیریت فایل
 
 requestSendFile(string $type)
 
@@ -356,7 +356,7 @@ downloadFile(string $file_id, string $to)
 $bot->downloadFile('file_id_here', '/path/to/save.jpg');
 ```
 
-🔧 کانفیگ
+# 🔧 کانفیگ
 
 تنظیمات پیش‌فرض
 
@@ -369,7 +369,7 @@ $bot = new Bot('token', [
 ]);
 ```
 
-🚨 مدیریت خطا
+# 🚨 مدیریت خطا
 
 هندلینگ خطا
 
@@ -393,19 +393,19 @@ $response = $bot->send();
 error_log('API Response: ' . json_encode($response));
 ```
 
-📝 مثال کامل
+# 📝 مثال کامل
 
 ```php
 <?php
 
-require_once 'RubikaBot/Bot.php';
-require_once 'RubikaBot/Message.php';
-require_once 'RubikaBot/Filters/Filter.php';
-require_once 'RubikaBot/Filters/Filters.php';
-require_once 'RubikaBot/Types/ChatType.php';
-require_once 'RubikaBot/Keyboard/Button.php';
-require_once 'RubikaBot/Keyboard/Keypad.php';
-require_once 'RubikaBot/Keyboard/KeypadRow.php';
+require_once 'Rubika-Bot/Bot.php';
+require_once 'Rubika-Bot/Message.php';
+require_once 'Rubika-Bot/Filters/Filter.php';
+require_once 'Rubika-Bot/Filters/Filters.php';
+require_once 'Rubika-Bot/Types/ChatType.php';
+require_once 'Rubika-Bot/Keyboard/Button.php';
+require_once 'Rubika-Bot/Keyboard/Keypad.php';
+require_once 'Rubika-Bot/Keyboard/KeypadRow.php';
 
 use RubikaBot\Bot;
 use RubikaBot\Filters\Filters;
@@ -445,10 +445,10 @@ $bot->onMessage(Filters::any(), function(Bot $bot, $message) {
 $bot->run();
 ```
 
-📊 ساختار دایرکتوری
+# 📊 ساختار دایرکتوری
 
 ```
-RubikaBot/
+Rubika-Bot/
 ├── Bot.php              # کلاس اصلی ربات
 ├── Message.php          # کلاس مدیریت پیام
 ├── Filters/
@@ -463,7 +463,7 @@ RubikaBot/
     └── KeypadRow.php    # کلاس ردیف کیبورد
 ```
 
-🎯 بهترین practices
+# 🎯 بهترین practices
 
 1. همیشه از try-catch استفاده کنید
 2. لاگ‌گیری مناسب پیاده‌سازی کنید
@@ -471,7 +471,7 @@ RubikaBot/
 4. از فیلترهای مناسب استفاده کنید
 5. ربات را روی وب‌سرور با SSL اجرا کنید
 
-📞 پشتیبانی
+# 📞 پشتیبانی
 
 برای گزارش باگ یا پیشنهاد ویژگی‌های جدید:
 
@@ -479,10 +479,10 @@ RubikaBot/
 · ارسال Pull Request
 · تماس از طریق ایمیل
 
-📜 لایسنس
+# 📜 لایسنس
 
 این پروژه تحت لایسنس MIT منتشر شده است.
 
 ---
 
-📖 مستندات کامل با مثال‌های کاربردی و بهترین practices
+# 📖 مستندات کامل با مثال‌های کاربردی و بهترین practices
