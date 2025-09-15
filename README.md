@@ -1,4 +1,5 @@
 # مستندات کامل کتابخانه RubikaBot
+  <img align="center" src="https://rubika.ir/static/images/logo.svg"/>
 
 # 📚 RubikaBot PHP Library
 
