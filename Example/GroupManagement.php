@@ -1,9 +1,9 @@
 <?php
 
-require_once 'RubikaBot/Bot.php';
-require_once 'RubikaBot/Message.php';
-require_once 'RubikaBot/Filters/Filter.php';
-require_once 'RubikaBot/Filters/Filters.php';
+require_once 'Rubika-Bot/Bot.php';
+require_once 'Rubika-Bot/Message.php';
+require_once 'Rubika-Bot/Filters/Filter.php';
+require_once 'Rubika-Bot/Filters/Filters.php';
 
 use RubikaBot\Bot;
 use RubikaBot\Filters\Filters;
