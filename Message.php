@@ -90,16 +90,12 @@ class Message
         return $bot->editMessage();
     }
     
-    public function delete(Bot $bot): array
-    {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_message_id) {
-            $bot->messageId($this->message_id);
-        }
-        return $bot->sendDelete();
-    }
+public function delete(Bot $bot): array
+{
+    $bot->chat($this->chat_id);
+    $bot->messageId($this->message_id);
+    return $bot->sendDelete();
+}
     
     public function loadChatInfo(Bot $bot): void
     {
