@@ -1,8 +1,7 @@
-# مستندات کامل کتابخانه RubikaBot
-  <img align="center" src="https://rubika.ir/static/images/logo.svg"/>
+
 
 # 📚 RubikaBot PHP Library
-
+  <img align="center" width="200" height="200" src="https://rubika.ir/static/images/logo.svg"/>
 یک کتابخانه قدرتمند و ساده برای ساخت ربات‌های روبیکا با PHP.
 
 # 📦 نصب و راه‌اندازی
