@@ -8,7 +8,7 @@
     "authors": [
         {
             "name": "Daniyel Vanguard",
-            "email": "hadipishghadam13@gmail.com.com",
+            "email": "hadipishghadam13@gmail.com.com", 
             "homepage": "https://github.com/Daniyel-Vanguard",
             "role": "Developer"
         }
@@ -18,17 +18,10 @@
         "ext-curl": "*",
         "ext-json": "*"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^9.0"
-    },
     "autoload": {
         "psr-4": {
             "RubikaBot\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "RubikaBot\\Tests\\": "Example/"
-        }
-    }
+    "minimum-stability": "stable"
 }
