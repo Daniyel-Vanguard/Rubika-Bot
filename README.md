@@ -16,14 +16,7 @@
 
 ```php
 // شامل کردن فایل‌های کتابخانه
-require_once 'Rubika-Bot/Bot.php';
-require_once 'Rubika-Bot/Message.php';
-require_once 'Rubika-Bot/Filters/Filter.php';
-require_once 'Rubika-Bot/Filters/Filters.php';
-require_once 'Rubika-Bot/Types/ChatType.php';
-require_once 'Rubika-Bot/Keyboard/Button.php';
-require_once 'Rubika-Bot/Keyboard/Keypad.php';
-require_once 'Rubika-Bot/Keyboard/KeypadRow.php';
+composer require rubikabot/rubikabot:dev-main
 ```
 
 # 🚀 شروع سریع
