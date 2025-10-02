@@ -1,14 +1,14 @@
 {
-    "name": "daniyel-vanguard/rubika-bot",
+    "name": "rubikabot/rubikabot",
     "description": "A PHP library for Rubika Bot API",
     "type": "library",
-    "keywords": ["rubika", "bot", "api", "php"],
+    "keywords": ["rubika", "bot", "api", "php", "rubikabot"],
     "homepage": "https://github.com/Daniyel-Vanguard/Rubika-Bot",
     "license": "MIT",
     "authors": [
         {
             "name": "Daniyel Vanguard",
-            "email": "hadipishghadam13@gmail.com.com", 
+            "email": "hadipishghadam13@gmail.com",
             "homepage": "https://github.com/Daniyel-Vanguard",
             "role": "Developer"
         }
