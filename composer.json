@@ -1,0 +1,34 @@
+{
+    "name": "daniyel-vanguard/rubika-bot",
+    "description": "A PHP library for Rubika Bot API",
+    "type": "library",
+    "keywords": ["rubika", "bot", "api", "php"],
+    "homepage": "https://github.com/Daniyel-Vanguard/Rubika-Bot",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniyel Vanguard",
+            "email": "hadipishghadam13@gmail.com.com",
+            "homepage": "https://github.com/Daniyel-Vanguard",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RubikaBot\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RubikaBot\\Tests\\": "Example/"
+        }
+    }
+}
