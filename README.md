@@ -391,15 +391,6 @@ error_log('API Response: ' . json_encode($response));
 ```php
 <?php
 
-require_once 'Rubika-Bot/Bot.php';
-require_once 'Rubika-Bot/Message.php';
-require_once 'Rubika-Bot/Filters/Filter.php';
-require_once 'Rubika-Bot/Filters/Filters.php';
-require_once 'Rubika-Bot/Types/ChatType.php';
-require_once 'Rubika-Bot/Keyboard/Button.php';
-require_once 'Rubika-Bot/Keyboard/Keypad.php';
-require_once 'Rubika-Bot/Keyboard/KeypadRow.php';
-
 use RubikaBot\Bot;
 use RubikaBot\Filters\Filters;
 use RubikaBot\Types\ChatType;
