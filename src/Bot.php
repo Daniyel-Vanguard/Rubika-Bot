@@ -108,19 +108,19 @@ class Bot
         $this->builder_file_type = null;
         return $this;
     }
-    
+
     public function file_id(string $file_id): static
     {
         $this->builder_file_id = $file_id;
         return $this;
     }
-    
+
     public function file_type(string $file_type): static
     {
         $this->builder_file_type = $file_type;
         return $this;
     }
-    
+
     public function caption(string $caption): static
     {
         $this->builder_caption = $caption;
@@ -147,20 +147,20 @@ class Bot
         $this->builder_contact_phone = $phone_number;
         return $this;
     }
-    
+
     public function inlineKeypad(array $keypad): static
     {
         $this->builder_inline_keypad = $keypad;
         return $this;
     }
-    
+
     public function chatKeypad(array $keypad, ?string $keypad_type = 'New'): static
     {
         $this->builder_chat_keypad = $keypad;
         $this->builder_chat_keypad_type = $keypad_type;
         return $this;
     }
-    
+
     public function forwardFrom(string $from_chat_id): static
     {
         $this->builder_from_chat_id = $from_chat_id;
@@ -172,43 +172,43 @@ class Bot
         $this->builder_to_chat_id = $to_chat_id;
         return $this;
     }
-    
+
     public function messageId(string $message_id): static
     {
         $this->builder_message_id = $message_id;
         return $this;
     }
-    
+
     public function setMaxMessages(int $maxMessages): void
-{
-    $this->maxMessages = $maxMessages;
-}
+    {
+        $this->maxMessages = $maxMessages;
+    }
 
-public function setTimeWindow(int $timeWindow): void
-{
-    $this->timeWindow = $timeWindow;
-}
+    public function setTimeWindow(int $timeWindow): void
+    {
+        $this->timeWindow = $timeWindow;
+    }
 
-public function setCooldown(int $cooldown): void
-{
-    $this->cooldown = $cooldown;
-}
+    public function setCooldown(int $cooldown): void
+    {
+        $this->cooldown = $cooldown;
+    }
 
-public function getMaxMessages(): int
-{
-    return $this->maxMessages;
-}
+    public function getMaxMessages(): int
+    {
+        return $this->maxMessages;
+    }
 
-public function getTimeWindow(): int
-{
-    return $this->timeWindow;
-}
+    public function getTimeWindow(): int
+    {
+        return $this->timeWindow;
+    }
 
-public function getCooldown(): int
-{
-    return $this->cooldown;
-}
-    
+    public function getCooldown(): int
+    {
+        return $this->cooldown;
+    }
+
     private function resetBuilder(): void
     {
         $this->builder_text = null;
@@ -280,7 +280,7 @@ public function getCooldown(): int
             $file_type = $this->builder_file_type ?? 'Image';
             $file_id = $this->builder_file_id ?? null;
         }
-        // sendFile
+   
         $params = [
             'chat_id' => $this->builder_chat_id,
             'file_id' => $file_id,
@@ -304,7 +304,7 @@ public function getCooldown(): int
         $this->resetBuilder();
         return ['api' => $res, 'file_id' => $file_id, 'type' => $file_type];
     }
-    
+
     public function sendPoll(): array
     {
         if (!$this->builder_chat_id) {
@@ -323,7 +323,7 @@ public function getCooldown(): int
         $this->resetBuilder();
         return $res;
     }
-    
+
     public function sendLocation(): array
     {
         if (!$this->builder_chat_id) {
@@ -381,7 +381,7 @@ public function getCooldown(): int
         $this->resetBuilder();
         return $res;
     }
-    
+
     public function forward(): array
     {
         if (!$this->builder_from_chat_id || !$this->builder_message_id || !$this->builder_to_chat_id) {
@@ -398,37 +398,63 @@ public function getCooldown(): int
         return $res;
     }
 
-    private function sendEditText(): array
+    
+    public function sendEditText(): array
     {
         if (!$this->builder_chat_id || !$this->builder_message_id || $this->builder_text === null) {
             throw new \InvalidArgumentException("chat_id, message_id and text are required for edit");
         }
+        
         $params = [
             'chat_id' => $this->builder_chat_id,
             'message_id' => $this->builder_message_id,
             'text' => $this->builder_text,
         ];
+        
         $res = $this->apiRequest('editMessageText', $params);
+        $this->lastResponse = $res;
+        $this->resetBuilder();
         return $res;
     }
-    
-    private function sendEditChatKeypad(): array
+
+
+    private function sendEditInlineKeypad(): array
     {
-        if (!$this->builder_chat_keypad || !$this->builder_chat_id) {
-                    throw new \InvalidArgumentException("inline keypad or message_id | chat id are required for edit inline keypad");
+        if (!$this->builder_chat_id || !$this->builder_message_id || !$this->builder_inline_keypad) {
+            throw new \InvalidArgumentException("chat_id, message_id and inline_keypad are required for edit inline keypad");
         }
+        
         $params = [
             'chat_id' => $this->builder_chat_id,
             'message_id' => $this->builder_message_id,
             'inline_keypad' => $this->builder_inline_keypad,
         ];
+        
         $res = $this->apiRequest('editMessageKeypad', $params);
         return $res;
     }
-    
+
+
+    private function sendEditChatKeypad(): array
+    {
+        if (!$this->builder_chat_id || !$this->builder_message_id || !$this->builder_chat_keypad) {
+            throw new \InvalidArgumentException("chat_id, message_id and chat_keypad are required for edit chat keypad");
+        }
+        
+        $params = [
+            'chat_id' => $this->builder_chat_id,
+            'message_id' => $this->builder_message_id,
+            'chat_keypad' => $this->builder_chat_keypad,
+            'chat_keypad_type' => $this->builder_chat_keypad_type ?? 'New',
+        ];
+        
+        $res = $this->apiRequest('editMessageKeypad', $params);
+        return $res;
+    }
+
     public function editMessage(): array {
         if (!$this->builder_chat_id || !$this->builder_message_id) {
-            throw new \InvalidArgumentException("chat_id, message_id and text are required for edit");
+            throw new \InvalidArgumentException("chat_id and message_id are required for edit");
         }
         $arr = [];
         if ($this->builder_text) $arr = array_merge($this->sendEditText(), $arr);
@@ -438,22 +464,39 @@ public function getCooldown(): int
         $this->resetBuilder();
         return $arr;
     }
-    
+
+
     public function sendDelete(): array
     {
         if (!$this->builder_chat_id || !$this->builder_message_id) {
             throw new \InvalidArgumentException("chat_id and message_id are required for delete");
         }
+        
         $params = [
             'chat_id' => $this->builder_chat_id,
             'message_id' => $this->builder_message_id,
         ];
+        
         $res = $this->apiRequest('deleteMessage', $params);
         $this->lastResponse = $res;
         $this->resetBuilder();
         return $res;
     }
-    
+
+
+    public function edit(string $message_id): array
+    {
+        $this->builder_message_id = $message_id;
+        return $this->sendEditText();
+    }
+
+
+    public function delete(string $message_id): array
+    {
+        $this->builder_message_id = $message_id;
+        return $this->sendDelete();
+    }
+
     private function uploadFileToUrl(string $url, string $file_path): string
     {
         $mime_type = mime_content_type($file_path);
@@ -482,7 +525,7 @@ public function getCooldown(): int
         }
         return $data['data']['file_id'];
     }
-    
+
     private function apiRequest(string $method, array $params = []): array
     {
         $url = $this->baseUrl . $method;
@@ -542,7 +585,7 @@ public function getCooldown(): int
     {
         return $this->apiRequest('getUpdates', $data);
     }
-    
+
     public function requestSendFile(string $type): string
     {
         $validTypes = ['File', 'Image', 'Voice', 'Music', 'Gif', 'Video'];
@@ -610,7 +653,7 @@ public function getCooldown(): int
     {
         return $this->userMessageCounters[$userId] ?? 0;
     }
-    
+
     public function cleanupSpamData(int $expireTime = 86400): void
     {
         $now = time();
@@ -667,7 +710,7 @@ public function getCooldown(): int
         ];
         return $this->apiRequest('updateBotEndpoints', $data);
     }
-    
+
     public function setEndpoint(string $url): array
     {
         $data = [];
@@ -676,7 +719,7 @@ public function getCooldown(): int
         }
         return $data;
     }
-    
+
     private function detectFileType(string $mime_type): string
     {
         $map = [
@@ -704,7 +747,7 @@ public function getCooldown(): int
             }
         }
     }
-    
+
     private function captureUpdate(): void
     {
         $input = @file_get_contents("php://input");
@@ -719,7 +762,7 @@ public function getCooldown(): int
     {
         return $this->update;
     }
-    
+
     public function onMessage($filter, callable $callback): void
     {
         if (!($filter instanceof Filters\Filter)) {
@@ -737,7 +780,7 @@ public function getCooldown(): int
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = new Message($this->update);
             $message->loadChatInfo($this);
-            
+
             $senderId = $message->sender_id;
             if ($senderId) {
                 if ($this->isUserSpamDetected($senderId)) {
@@ -756,7 +799,7 @@ public function getCooldown(): int
                     return;
                 }
             }
-            
+
             foreach ($this->handlers as $handler) {
                 if ($handler['filter']($this)) {
                     $handler['callback']($this, $message);
@@ -767,7 +810,7 @@ public function getCooldown(): int
             if (file_exists($this->hashedToken . '.txt')) {
                 $offset_id = file_get_contents($this->hashedToken . '.txt');
             }
-            
+
             while (true) {
                 try {
                     $params = ['limit' => 100];
@@ -790,9 +833,9 @@ public function getCooldown(): int
                         $this->update = ['update' => $update];
                         $message = new Message($this->update);
                         $message->loadChatInfo($this);
-                        
+
                         $this->chat($message->chat_id ?? '');
-                        
+
                         $senderId = $message->sender_id;
                         if ($senderId) {
                             if ($this->isUserSpamDetected($senderId)) {
@@ -826,7 +869,7 @@ public function getCooldown(): int
             }
         }
     }
-    
+
     public function getLastResponse(): array
     {
         return $this->lastResponse;
