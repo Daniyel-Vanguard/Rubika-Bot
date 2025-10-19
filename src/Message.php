@@ -28,8 +28,8 @@ class Message
         $this->file_id = $updateData['update']['new_message']['file']['file_id'] ?? null;
         $this->file_size = $updateData['update']['new_message']['file']['size'] ?? null;
         $this->message_id = $updateData['update']['new_message']['message_id'] ?? $updateData['inline_message']['message_id'] ?? null;
-        
-        // این فیلدها نیاز به فراخوانی getChat دارند
+
+
         $this->chat_type = null;
         $this->first_name = null;
         $this->user_name = null;
@@ -37,66 +37,47 @@ class Message
 
     public function reply(Bot $bot): array
     {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_reply_to) {
-            $bot->replyTo($this->message_id);
-        }
+
+        $bot->chat($this->chat_id);
+        $bot->replyTo($this->message_id);
         return $bot->send();
     }
-    
+
     public function replyFile(Bot $bot): array
     {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_reply_to) {
-            $bot->replyTo($this->message_id);
-        }
+        $bot->chat($this->chat_id);
+        $bot->replyTo($this->message_id);
         return $bot->sendFile();
     }
-    
+
     public function replyContact(Bot $bot): array
     {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_reply_to) {
-            $bot->replyTo($this->message_id);
-        }
+        $bot->chat($this->chat_id);
+        $bot->replyTo($this->message_id);
         return $bot->sendContact();
     }
-    
+
     public function replyLocation(Bot $bot): array
     {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_reply_to) {
-            $bot->replyTo($this->message_id);
-        }
+        $bot->chat($this->chat_id);
+        $bot->replyTo($this->message_id);
         return $bot->sendLocation();
     }
-    
+
     public function editText(Bot $bot): array
     {
-        if (!$bot->builder_chat_id) {
-            $bot->chat($this->chat_id);
-        }
-        if (!$bot->builder_message_id) {
-            $bot->messageId($this->message_id);
-        }
-        return $bot->editMessage();
+        $bot->chat($this->chat_id);
+        $bot->messageId($this->message_id);
+        return $bot->sendEditText();
     }
-    
-public function delete(Bot $bot): array
-{
-    $bot->chat($this->chat_id);
-    $bot->messageId($this->message_id);
-    return $bot->sendDelete();
-}
-    
+
+    public function delete(Bot $bot): array
+    {
+        $bot->chat($this->chat_id);
+        $bot->messageId($this->message_id);
+        return $bot->sendDelete();
+    }
+
     public function loadChatInfo(Bot $bot): void
     {
         if ($this->chat_id && (!$this->chat_type || !$this->first_name)) {
