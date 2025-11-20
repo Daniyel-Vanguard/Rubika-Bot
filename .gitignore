@@ -1,0 +1,12 @@
+# Ignore Example folder
+Example/
+
+# Ignore GitHub workflows
+.github/workflows/
+
+# Common ignores
+*.log
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
