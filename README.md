@@ -1,472 +1,602 @@
+# مستندات کامل کتابخانه RubikaBot PHP
+ <img align="center" width="200" height="200" src="https://rubika.ir/static/images/logo.svg"/>
+### فهرست مطالب
 
+· معرفی
+· نصب و راه‌اندازی
+· کلاس Bot
+· کلاس Message
+· فیلترها (Filters)
+· کیبوردها (Keyboards)
+· فرمت‌بندی متن (Metadata)
+· انواع داده‌ها (Types)
+· مثال‌های کاربردی
+· مدیریت اسپم
+· آپلود فایل
 
-# 📚 RubikaBot PHP Library
-  <img align="center" width="200" height="200" src="https://rubika.ir/static/images/logo.svg"/>
-یک کتابخانه قدرتمند و ساده برای ساخت ربات‌های روبیکا با PHP.
+## معرفی
 
-# 📦 نصب و راه‌اندازی
+کتابخانه RubikaBot یک پکیج PHP برای ساخت ربات‌های تلگرام و روبیکا است. این کتابخانه با معماری شیءگرا و امکانات پیشرفته، توسعه ربات‌ها را بسیار ساده می‌کند.
 
-نیازمندی‌ها
+## ویژگی‌های اصلی:
 
-· PHP 7.4 یا بالاتر
-· فعال بودن extension curl
-· توکن ربات روبیکا
+· ✅ پشتیبانی از Markdown و HTML
+· ✅ مدیریت پیشرفته کیبوردها
+· ✅ سیستم فیلترینگ قدرتمند
+· ✅ مدیریت خودکار اسپم
+· ✅ آپلود و ارسال فایل
+· ✅ پشتیبانی از انواع پیام‌ها
 
-# نصب
+### نصب و راه‌اندازی
 
-```php
-// شامل کردن فایل‌های کتابخانه
+```text
 composer require rubikabot/rubikabot:dev-main
 ```
-
-# 🚀 شروع سریع
+### راه‌اندازی اولیه:
 
 ```php
+<?php
+require_once 'RubikaBot/Bot.php';
+require_once 'RubikaBot/Message.php';
+// سایر فایل‌های مورد نیاز...
+
 use RubikaBot\Bot;
 use RubikaBot\Filters\Filters;
 
-$bot = new Bot('YOUR_BOT_TOKEN');
+$token = "YOUR_BOT_TOKEN";
+$bot = new Bot($token);
 
-$bot->onMessage(Filters::command('start'), function(Bot $bot, $message) {
-    $bot->chat($message->chat_id)
+// تعریف هندلرها
+$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) {
+    $bot->chat($msg->chat_id)
+        ->message("سلام! به ربات خوش آمدید 👋")
+        ->send();
+});
+
+// اجرای ربات
+$bot->run();
+```
+
+## کلاس Bot
+
+کلاس اصلی برای مدیریت ربات و ارسال پیام‌ها.
+
+### متدهای اصلی:
+
+# سازنده (Daniyel Vanguard)
+
+```php
+$bot = new Bot(string $token, array $config = []);
+```
+
+#### ارسال پیام متنی
+
+```php
+$bot->chat('CHAT_ID')
+    ->message('متن پیام')
+    ->replyTo('MESSAGE_ID') // اختیاری
+    ->send();
+```
+
+#### ارسال فایل
+
+```php
+$bot->chat('CHAT_ID')
+    ->file('/path/to/file.jpg')
+    ->caption('توضیح فایل')
+    ->sendFile();
+```
+
+#### ارسال موقعیت
+
+```php
+$bot->chat('CHAT_ID')
+    ->location(35.6892, 51.3890) // عرض و طول جغرافیایی
+    ->sendLocation();
+```
+
+#### ارسال مخاطب
+
+```php
+$bot->chat('CHAT_ID')
+    ->contact('نام', '09123456789')
+    ->sendContact();
+```
+
+#### ارسال نظرسنجی
+
+```php
+$bot->chat('CHAT_ID')
+    ->poll('سوال نظرسنجی', ['گزینه ۱', 'گزینه ۲', 'گزینه ۳'])
+    ->sendPoll();
+```
+
+#### ویرایش پیام
+
+```php
+$bot->chat('CHAT_ID')
+    ->messageId('MESSAGE_ID')
+    ->message('متن جدید')
+    ->editMessage();
+```
+
+#### حذف پیام
+
+```php
+$bot->chat('CHAT_ID')
+    ->messageId('MESSAGE_ID')
+    ->delete();
+```
+
+#### فوروارد پیام
+
+```php
+$bot->forwardFrom('FROM_CHAT_ID')
+    ->messageId('MESSAGE_ID')
+    ->forwardTo('TO_CHAT_ID')
+    ->forward();
+```
+
+#### متدهای کمکی:
+
+```php
+// دریافت اطلاعات ربات
+$bot->getMe();
+
+// دریافت اطلاعات چت
+$bot->getChat(['chat_id' => 'CHAT_ID']);
+
+// تنظیم دستورات
+$bot->setCommands(['bot_commands' => [...]]);
+
+// تنظیم وب‌هوک
+$bot->setEndpoint('https://your-domain.com/webhook');
+```
+
+## کلاس Message
+
+کلاس برای مدیریت و آنالیز پیام‌های دریافتی.
+
+ویژگی‌ها:
+
+```php
+$message = new Message($updateData);
+
+// دسترسی به ویژگی‌ها
+$message->chat_id;      // آیدی چت
+$message->sender_id;    // آیدی فرستنده
+$message->text;         // متن پیام
+$message->message_id;   // آیدی پیام
+$message->file_id;      // آیدی فایل
+$message->button_id;    // آیدی دکمه
+$message->chat_type;    // نوع چت
+```
+
+#### متدهای پاسخ:
+
+```php
+// پاسخ متنی
+$message->reply($bot, 'Markdown');
+
+// پاسخ با فایل
+$message->replyFile($bot);
+
+// پاسخ با موقعیت
+$message->replyLocation($bot);
+
+// پاسخ با مخاطب
+$message->replyContact($bot);
+
+// ویرایش پیام
+$message->editText($bot);
+
+// حذف پیام
+$message->delete($bot);
+```
+
+#### آنالیز متادیتا:
+
+```php
+// بررسی فرمت‌بندی متن
+if ($message->is_bold) {
+    // متن بولد است
+}
+
+if ($message->is_italic) {
+    // متن ایتالیک است
+}
+
+if ($message->has_link) {
+    // متن حاوی لینک است
+}
+
+// دریافت اطلاعات کامل متادیتا
+$metadataInfo = $message->getMetadataInfo();
+```
+
+### فیلترها (Filters)
+
+سیستم فیلترینگ پیشرفته برای مدیریت هندلرها.
+
+فیلترهای پایه:
+
+```php
+use RubikaBot\Filters\Filters;
+use RubikaBot\Types\ChatType;
+
+// فیلتر متن
+$bot->onMessage(Filters::text('سلام'), $callback);
+
+// فیلتر دستور
+$bot->onMessage(Filters::command('start'), $callback);
+
+// فیلتر دکمه
+$bot->onMessage(Filters::button('button_id'), $callback);
+
+// فیلتر نوع چت
+$bot->onMessage(Filters::chatType(ChatType::GROUP), $callback);
+
+// فیلتر آیدی چت
+$bot->onMessage(Filters::chatId('CHAT_ID'), $callback);
+
+// فیلتر آیدی فرستنده
+$bot->onMessage(Filters::senderId('USER_ID'), $callback);
+
+// فیلتر فایل
+$bot->onMessage(Filters::file(), $callback);
+
+// فیلتر عکس
+$bot->onMessage(Filters::photo(), $callback);
+
+// فیلتر هر پیام
+$bot->onMessage(Filters::any(), $callback);
+```
+
+#### ترکیب فیلترها:
+
+```php
+// AND منطقی
+$filter = Filters::command('start')->and(Filters::chatType(ChatType::USER));
+
+// OR منطقی
+$filter = Filters::text('سلام')->or(Filters::text('hello'));
+
+$bot->onMessage($filter, $callback);
+```
+
+#### فیلتر اسپم:
+
+```php
+$bot->onMessage(Filters::spam(5, 10, 120), function(Bot $bot, Message $msg) {
+    // کاربر اسپم کرده است
+    $bot->chat($msg->chat_id)
+        ->message('لطفاً سرعت ارسال پیام خود را کاهش دهید!')
+        ->send();
+});
+```
+
+### کیبوردها (Keyboards)
+
+سیستم قدرتمند برای ساخت کیبوردهای اینلاین و معمولی.
+
+ساخت کیبورد اینلاین:
+
+```php
+use RubikaBot\Keyboard\Keypad;
+use RubikaBot\Keyboard\Button;
+
+$keypad = Keypad::make()
+    ->row()
+        ->add(Button::simple('btn1', 'دکمه ۱'))
+        ->add(Button::simple('btn2', 'دکمه ۲'))
+    ->row()
+        ->add(Button::simple('btn3', 'دکمه ۳'));
+
+$bot->chat('CHAT_ID')
+    ->message('پیام با کیبورد')
+    ->inlineKeypad($keypad->toArray())
+    ->send();
+```
+
+#### انواع دکمه‌ها:
+
+```php
+// دکمه ساده
+Button::simple('id', 'متن');
+
+// دکمه انتخابی
+Button::selection('id', 'عنوان', ['گزینه۱', 'گزینه۲']);
+
+// دکمه تقویم
+Button::calendar('id', 'انتخاب تاریخ', 'DatePicker');
+
+// دکمه انتخاب عدد
+Button::numberPicker('id', 'انتخاب عدد', 1, 100);
+
+// دکمه انتخاب رشته
+Button::stringPicker('id', 'انتخاب', ['آیتم۱', 'آیتم۲']);
+
+// دکمه موقعیت
+Button::location('id', 'ارسال موقعیت');
+
+// دکمه لینک
+Button::link('id', 'باز کردن لینک', 'url', $linkObject);
+
+// دکمه پرداخت
+Button::payment('id', 'پرداخت');
+
+// و انواع دیگر...
+```
+
+#### کیبورد چت (Reply Keyboard):
+
+```php
+$chatKeypad = Keypad::make()
+    ->setResize(true)
+    ->setOnetime(false)
+    ->row()
+        ->add(Button::simple('menu', 'منو'))
+    ->row()
+        ->add(Button::simple('help', 'راهنما'));
+
+$bot->chat('CHAT_ID')
+    ->message('پیام با کیبورد چت')
+    ->chatKeypad($chatKeypad->toArray(), 'New')
+    ->send();
+```
+
+### فرمت‌بندی متن (Metadata)
+
+پشتیبانی از Markdown و HTML برای فرمت‌بندی متن.
+
+استفاده از Markdown:
+
+```php
+$bot->chat('CHAT_ID')
+    ->message('متن **بولد** و __ایتالیک__ و `کد`')
+    ->setParseMode('Markdown')
+    ->send();
+```
+
+#### استفاده از HTML:
+
+```php
+$bot->chat('CHAT_ID')
+    ->message('متن <b>بولد</b> و <i>ایتالیک</i>')
+    ->setParseMode('HTML')
+    ->send();
+```
+
+#### ابزارهای کمکی فرمت‌بندی:
+
+```php
+use RubikaBot\Metadata\Utils;
+
+$text = Utils::Bold('متن بولد') . "\n" .
+        Utils::Italic('متن ایتالیک') . "\n" .
+        Utils::Hyperlink('متن لینک', 'https://example.com');
+
+$bot->chat('CHAT_ID')
+    ->message($text)
+    ->send();
+```
+
+### انواع فرمت‌بندی موجود:
+
+· Bold: **متن**
+· Italic: __متن__
+· Underline: --متن--
+· Strike: ~~متن~~
+· Mono:  `متن` 
+· Spoiler: ||متن||
+· Code:  ```متن``` 
+· Quote: ##متن##
+· Link: [متن](URL)
+
+### انواع داده‌ها (Types)
+
+انواع چت:
+
+```php
+use RubikaBot\Types\ChatType;
+
+ChatType::USER;     // کاربر
+ChatType::GROUP;    // گروه
+ChatType::CHANNEL;  // کانال
+ChatType::BOT;      // ربات
+```
+
+#### انواع آپدیت:
+
+```php
+use RubikaBot\Types\UpdateType;
+
+UpdateType::MESSAGE;           // پیام جدید
+UpdateType::EDIT_MESSAGE;      // ویرایش پیام
+UpdateType::DELETE_MESSAGE;    // حذف پیام
+UpdateType::CALLBACK_QUERY;    // کلیک دکمه
+UpdateType::INLINE_QUERY;      // جستجوی اینلاین
+```
+
+#### انواع لینک دکمه:
+
+```php
+use RubikaBot\Types\ButtonLinkType;
+
+ButtonLinkType::URL;           // لینک وب
+ButtonLinkType::JoinChannel;   // پیوستن به کانال
+```
+
+### مثال‌های کاربردی
+
+ربات ساده:
+
+```php
+<?php
+require_once 'RubikaBot/Bot.php';
+require_once 'RubikaBot/Message.php';
+require_once 'RubikaBot/Filters/Filters.php';
+
+use RubikaBot\Bot;
+use RubikaBot\Filters\Filters;
+
+$bot = new Bot('YOUR_TOKEN');
+
+// دستور start
+$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) {
+    $bot->chat($msg->chat_id)
         ->message('به ربات خوش آمدید! 🎉')
         ->send();
 });
 
-$bot->run();
-```
-
-# 📋 کلاس Bot
-
-متدهای اصلی
-
-__construct(string $token, array $config = [])
-
-# ساخت نمونه ربات
-
-```php
-$bot = new Bot('your_bot_token', [
-    'timeout' => 30,
-    'max_retries' => 3,
-    'parse_mode' => 'Markdown'
-]);
-```
-
-onMessage($filter, callable $callback)
-
-# ثبت هندلر برای پیام‌ها
-
-```php
-$bot->onMessage(Filters::text('سلام'), function(Bot $bot, $message) {
-    // پردازش پیام
+// پاسخ به متن
+$bot->onMessage(Filters::text('سلام'), function(Bot $bot, Message $msg) {
+    $bot->chat($msg->chat_id)
+        ->message('سلام! چطور می‌تونم کمک کنم؟')
+        ->send();
 });
-```
 
-run()
+// مدیریت فایل
+$bot->onMessage(Filters::file(), function(Bot $bot, Message $msg) {
+    $bot->chat($msg->chat_id)
+        ->message('فایل شما دریافت شد! 📁')
+        ->send();
+});
 
-# اجرای ربات
-
-```php
 $bot->run();
 ```
 
-# متدهای ارسال پیام
-
-chat(string $chat_id)
-
-تنظیم چت ID
+### ربات پیشرفته با کیبورد:
 
 ```php
-$bot->chat('123456789');
-```
+<?php
+require_once 'RubikaBot/Bot.php';
+require_once 'RubikaBot/Message.php';
+require_once 'RubikaBot/Filters/Filters.php';
+require_once 'RubikaBot/Keyboard/Keypad.php';
+require_once 'RubikaBot/Keyboard/Button.php';
 
-message(string $text)
-
-تنظیم متن پیام
-
-```php
-$bot->message('سلام دنیا!');
-```
-
-send()
-
-ارسال پیام متنی
-
-```php
-$bot->chat('123456789')->message('سلام!')->send();
-```
-
-sendFile()
-
-ارسال فایل
-
-```php
-$bot->chat('123456789')
-    ->file('/path/to/file.jpg')
-    ->caption('توضیح تصویر')
-    ->sendFile();
-```
-
-sendPoll()
-
-ارسال نظرسنجی
-
-```php
-$bot->chat('123456789')
-    ->poll('نظر شما چیست؟', ['گزینه ۱', 'گزینه ۲', 'گزینه ۳'])
-    ->sendPoll();
-```
-
-# مدیریت کیبورد
-
-chatKeypad(array $keypad, ?string $keypad_type = 'New')
-
-تنظیم کیبورد معمولی
-
-```php
-$keypad = Keypad::make()->row()->add(Button::simple('btn1', 'دکمه ۱'));
-$bot->chatKeypad($keypad->toArray());
-```
-
-inlineKeypad(array $keypad)
-
-تنظیم inline کیبورد
-
-```php
-$bot->inlineKeypad($keypad->toArray());
-```
-
-# 🎛️ کلاس Filters
-
-فیلترهای موجود
-
-text(?string $match = null)
-
-فیلتر متن
-
-```php
-Filters::text('سلام') // متن دقیق
-Filters::text() // هر متنی
-```
-
-command(string $command)
-
-فیلتر دستور
-
-```php
-Filters::command('start') // /start
-```
-
-button(string $button)
-
-فیلتر دکمه
-
-```php
-Filters::button('btn1') // دکمه با ID btn1
-```
-
-chatType(ChatType $chat)
-
-فیلتر نوع چت
-
-```php
-use RubikaBot\Types\ChatType;
-Filters::chatType(ChatType::GROUP);
-```
-
-file()
-
-فیلتر فایل
-
-```php
-Filters::file();
-```
-
-any()
-
-هر نوع پیام
-
-```php
-Filters::any();
-```
-
-spam(int $maxMessages = 5, int $timeWindow = 10, int $cooldown = 120)
-
-فیلتر تشخیص اسپم
-
-```php
-Filters::spam(5, 10, 120); // 5 پیام در 10 ثانیه
-```
-
-# ⌨️ کلاس‌های کیبورد
-
-Keypad
-
-```php
+use RubikaBot\Bot;
+use RubikaBot\Filters\Filters;
 use RubikaBot\Keyboard\Keypad;
-use RubikaBot\Keyboard\KeypadRow;
 use RubikaBot\Keyboard\Button;
 
-$keypad = Keypad::make();
-$row = $keypad->row();
-$row->add(Button::simple('btn1', 'دکمه ۱'));
-$row->add(Button::simple('btn2', 'دکمه ۲'));
+$bot = new Bot('YOUR_TOKEN');
+
+// منوی اصلی
+$mainMenu = Keypad::make()
+    ->row()
+        ->add(Button::simple('profile', '👤 پروفایل'))
+        ->add(Button::simple('settings', '⚙️ تنظیمات'))
+    ->row()
+        ->add(Button::simple('help', '📖 راهنما'))
+        ->add(Button::simple('about', 'ℹ️ درباره ما'));
+
+$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) use ($mainMenu) {
+    $bot->chat($msg->chat_id)
+        ->message('منوی اصلی:')
+        ->inlineKeypad($mainMenu->toArray())
+        ->send();
+});
+
+// مدیریت کلیک دکمه‌ها
+$bot->onMessage(Filters::button('profile'), function(Bot $bot, Message $msg) {
+    $bot->chat($msg->chat_id)
+        ->message('اطلاعات پروفایل شما...')
+        ->send();
+});
+
+$bot->run();
 ```
 
-Button انواع دکمه‌ها
+### مدیریت اسپم
 
-دکمه ساده
+کتابخانه دارای سیستم مدیریت اسپم داخلی است:
+
+تنظیمات پیش‌فرض:
+
+· حداکثر ۱۰ پیام در ۱۵ ثانیه
+· زمان سرد شدن: ۱۲۰ ثانیه
+
+#### تنظیمات سفارشی:
 
 ```php
-Button::simple('id', 'متن دکمه');
+$bot->setMaxMessages(5);      // 5 پیام در بازه زمانی
+$bot->setTimeWindow(10);      // بازه 10 ثانیه
+$bot->setCooldown(60);        // 60 ثانیه محرومیت
 ```
 
-دکمه انتخاب
+#### مدیریت دستی:
 
 ```php
-Button::selection('id', 'عنوان', ['آیتم ۱', 'آیتم ۲'], true, 2);
-```
-
-دکمه تقویم
-
-```php
-Button::calendar('id', 'عنوان', 'type', 'min', 'max');
-```
-
-دکمه شماره
-
-```php
-Button::numberPicker('id', 'عنوان', 1, 100, 50);
-```
-
-دکمه لینک
-
-```php
-Button::link('id', 'عنوان', 'url', $linkObject);
-```
-
-# 💬 کلاس Message
-
-ویژگی‌ها
-
-```php
-$message->chat_id; // ID چت
-$message->sender_id; // ID فرستنده
-$message->text; // متن پیام
-$message->message_id; // ID پیام
-$message->file_id; // ID فایل
-$message->file_name; // نام فایل
-$message->button_id; // ID دکمه
-```
-
-متدهای پاسخ
-
-```php
-$message->reply($bot); // پاسخ به پیام
-$message->replyFile($bot); // پاسخ با فایل
-$message->delete($bot); // حذف پیام
-```
-
-# 🛡️ مدیریت اسپم
-
-```php
-// تنظیم محدودیت اسپم
-$bot->maxMessages = 5; // حداکثر 5 پیام
-$bot->timeWindow = 10; // در 10 ثانیه
-$bot->cooldown = 120; // تحریم 120 ثانیه
-
-// بررسی اسپم
+// بررسی اسپم کاربر
 if ($bot->isUserSpamming($userId)) {
     // کاربر در حال اسپم است
 }
 
-// ریست وضعیت اسپم
-$bot->resetUserSpamState($userId);
-```
-
-# 🌐 متدهای API
-
-getMe()
-
-دریافت اطلاعات ربات
-
-```php
-$botInfo = $bot->getMe();
-```
-
-getChat(array $data)
-
-دریافت اطلاعات چت
-
-```php
-$chatInfo = $bot->getChat(['chat_id' => '123456789']);
-```
-
-getUpdates(array $data = [])
-
-دریافت آپدیت‌ها
-
-```php
-$updates = $bot->getUpdates(['limit' => 100]);
-```
-
-setCommands(array $data)
-
-تنظیم دستورات
-
-```php
-$bot->setCommands([
-    'bot_commands' => [
-        ['command' => 'start', 'description' => 'شروع ربات'],
-        ['command' => 'help', 'description' => 'راهنما']
-    ]
-]);
-```
-
-# 📁 مدیریت فایل
-
-requestSendFile(string $type)
-
-درخواست آپلود فایل
-
-```php
-$uploadUrl = $bot->requestSendFile('Image');
-```
-
-getFile(string $file_id)
-
-دریافت لینک دانلود فایل
-
-```php
-$downloadUrl = $bot->getFile('file_id_here');
-```
-
-downloadFile(string $file_id, string $to)
-
-دانلود فایل
-
-```php
-$bot->downloadFile('file_id_here', '/path/to/save.jpg');
-```
-
-# 🔧 کانفیگ
-
-تنظیمات پیش‌فرض
-
-```php
-$bot = new Bot('token', [
-    'timeout' => 30,           // timeout برای درخواست‌ها
-    'max_retries' => 3,        // حداکثر تلاش مجدد
-    'parse_mode' => 'Markdown', // حالت تجزیه متن
-    'salt' => 'RubikaBot'      // نمک برای هش توکن
-]);
-```
-
-# 🚨 مدیریت خطا
-
-هندلینگ خطا
-
-```php
-try {
-    $bot->run();
-} catch (Exception $e) {
-    error_log('Error: ' . $e->getMessage());
-    // مدیریت خطا
+// بررسی محرومیت
+if ($bot->isUserSpamDetected($userId)) {
+    // کاربر محروم شده است
 }
+
+// بازنشانی وضعیت اسپم
+$bot->resetUserSpamState($userId);
+
+// دریافت تعداد پیام‌های کاربر
+$count = $bot->getUserMessageCount($userId);
 ```
 
-لاگ‌گیری
+### آپلود فایل
+
+#### ارسال فایل از مسیر محلی:
 
 ```php
-// فعال کردن لاگ
-error_log('Bot started: ' . date('Y-m-d H:i:s'));
+$result = $bot->chat('CHAT_ID')
+    ->file('/path/to/image.jpg')
+    ->caption('توضیح عکس')
+    ->sendFile();
 
-// لاگ پاسخ API
-$response = $bot->send();
-error_log('API Response: ' . json_encode($response));
+$fileId = $result['file_id']; // ذخیره برای استفاده بعدی
 ```
 
-# 📝 مثال کامل
+#### ارسال فایل با file_id:
 
 ```php
-<?php
-
-use RubikaBot\Bot;
-use RubikaBot\Filters\Filters;
-use RubikaBot\Types\ChatType;
-use RubikaBot\Keyboard\Button;
-use RubikaBot\Keyboard\Keypad;
-use RubikaBot\Keyboard\KeypadRow;
-
-$bot = new Bot('YOUR_BOT_TOKEN');
-
-// منوی اصلی
-$bot->onMessage(Filters::command('start'), function(Bot $bot, $message) {
-    $keypad = Keypad::make();
-    
-    $row1 = $keypad->row();
-    $row1->add(Button::simple('help', '📖 راهنما'));
-    $row1->add(Button::simple('about', 'ℹ️ درباره'));
-    
-    $row2 = $keypad->row();
-    $row2->add(Button::simple('contact', '📞 تماس'));
-    
-    $bot->chat($message->chat_id)
-        ->message('به ربات خوش آمدید! 🌟')
-        ->chatKeypad($keypad->toArray())
-        ->send();
-});
-
-// مدیریت تمام پیام‌ها
-$bot->onMessage(Filters::any(), function(Bot $bot, $message) {
-    if ($message->text && !str_starts_with($message->text, '/')) {
-        $bot->chat($message->chat_id)
-            ->message('از منوی زیر انتخاب کنید:')
-            ->send();
-    }
-});
-
-$bot->run();
+$bot->chat('CHAT_ID')
+    ->file_id('FILE_ID_FROM_PREVIOUS_UPLOAD')
+    ->file_type('Image')
+    ->sendFile();
 ```
 
-# 📊 ساختار دایرکتوری
+#### دانلود فایل:
 
-```
-Rubika-Bot/
-├── Bot.php              # کلاس اصلی ربات
-├── Message.php          # کلاس مدیریت پیام
-├── Filters/
-│   ├── Filter.php       # کلاس پایه فیلتر
-│   └── Filters.php      # فیلترهای آماده
-├── Types/
-│   └── ChatType.php     # انواع چت
-└── Keyboard/
-    ├── Button.php       # کلاس دکمه
-    ├── ButtonLink.php   # دکمه لینک
-    ├── Keypad.php       # کلاس کیبورد
-    └── KeypadRow.php    # کلاس ردیف کیبورد
+```php
+// دریافت لینک دانلود
+$downloadUrl = $bot->getFile('FILE_ID');
+
+// دانلود و ذخیره فایل
+$bot->downloadFile('FILE_ID', '/path/to/save/file.jpg');
 ```
 
-# 🎯 بهترین practices
+### تشخیص خودکار نوع فایل:
 
-1. همیشه از try-catch استفاده کنید
-2. لاگ‌گیری مناسب پیاده‌سازی کنید
-3. مدیریت اسپم را فعال نگه دارید
-4. از فیلترهای مناسب استفاده کنید
-5. ربات را روی وب‌سرور با SSL اجرا کنید
+کتابخانه به طور خودکار نوع فایل را بر اساس MIME type تشخیص می‌دهد:
 
-# 📞 پشتیبانی
+· image/jpeg, image/png → Image
+· image/gif → Gif
+· video/mp4 → Video
+· audio/mpeg → File
+· و سایر فرمت‌ها → File
+## آموزش صفر تا صد در یوتیوب:
+<div align="center">
 
-برای گزارش باگ یا پیشنهاد ویژگی‌های جدید:
+[![learn RubikaBot](https://img.shields.io/badge/YouTube-ویدیوهای_آموزشی-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/playlist?list=PLPF5RMxQ-2_gUJL-RpbPj2bm4gMMTNlHd&si=rILoxjFIsoR8zYdG)
 
-· ایجاد Issue در GitHub
-· ارسال Pull Request
-· تماس از طریق ایمیل
+</div>
 
-# 📜 لایسنس
+## و نحوه کار کردن با گوشی اندروید:
+<div align="center">
 
-این پروژه تحت لایسنس MIT منتشر شده است.
+[![ویدیوهای آموزشی](https://img.shields.io/badge/YouTube-ویدیوهای_آموزشی-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/playlist?list=PLPF5RMxQ-2_j1N325MV7yrHOsl-fxyLOF&si=PIms3U5ljXjOwUBK)
 
----
-
-# 📖 مستندات کامل با مثال‌های کاربردی و بهترین practices
+</div>
