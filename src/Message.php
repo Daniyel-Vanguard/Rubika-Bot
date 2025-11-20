@@ -29,45 +29,58 @@ class Message
         $this->file_size = $updateData['update']['new_message']['file']['size'] ?? null;
         $this->message_id = $updateData['update']['new_message']['message_id'] ?? $updateData['inline_message']['message_id'] ?? null;
 
-
         $this->chat_type = null;
         $this->first_name = null;
         $this->user_name = null;
     }
 
-    public function reply(Bot $bot): array
+    public function reply(Bot $bot, ?string $parse_mode = null): array
     {
-
         $bot->chat($this->chat_id);
         $bot->replyTo($this->message_id);
+        if ($parse_mode) {
+            $bot->setParseMode($parse_mode);
+        }
         return $bot->send();
     }
 
-    public function replyFile(Bot $bot): array
+    public function replyFile(Bot $bot, ?string $parse_mode = null): array
     {
         $bot->chat($this->chat_id);
         $bot->replyTo($this->message_id);
+        if ($parse_mode) {
+            $bot->setParseMode($parse_mode);
+        }
         return $bot->sendFile();
     }
 
-    public function replyContact(Bot $bot): array
+    public function replyContact(Bot $bot, ?string $parse_mode = null): array
     {
         $bot->chat($this->chat_id);
         $bot->replyTo($this->message_id);
+        if ($parse_mode) {
+            $bot->setParseMode($parse_mode);
+        }
         return $bot->sendContact();
     }
 
-    public function replyLocation(Bot $bot): array
+    public function replyLocation(Bot $bot, ?string $parse_mode = null): array
     {
         $bot->chat($this->chat_id);
         $bot->replyTo($this->message_id);
+        if ($parse_mode) {
+            $bot->setParseMode($parse_mode);
+        }
         return $bot->sendLocation();
     }
 
-    public function editText(Bot $bot): array
+    public function editText(Bot $bot, ?string $parse_mode = null): array
     {
         $bot->chat($this->chat_id);
         $bot->messageId($this->message_id);
+        if ($parse_mode) {
+            $bot->setParseMode($parse_mode);
+        }
         return $bot->sendEditText();
     }
 
