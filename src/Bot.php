@@ -10,6 +10,12 @@ require_once 'Keyboard/Button.php';
 require_once 'Keyboard/ButtonLink.php';
 require_once 'Keyboard/Keypad.php';
 require_once 'Keyboard/KeypadRow.php';
+require_once 'Metadata/TrackParsed.php';
+require_once 'Metadata/Markdown.php';
+require_once 'Metadata/Utils.php';
+
+use RubikaBot\Metadata\TrackParsed;
+use RubikaBot\Metadata\Utils;
 
 class Bot
 {
@@ -89,9 +95,12 @@ class Bot
         return $this;
     }
 
-    public function message(string $text): static
+    public function message(string $text, ?string $parse_mode = null): static
     {
         $this->builder_text = $text;
+        if ($parse_mode) {
+            $this->setParseMode($parse_mode);
+        }
         return $this;
     }
 
@@ -121,9 +130,12 @@ class Bot
         return $this;
     }
 
-    public function caption(string $caption): static
+    public function caption(string $caption, ?string $parse_mode = null): static
     {
         $this->builder_caption = $caption;
+        if ($parse_mode) {
+            $this->setParseMode($parse_mode);
+        }
         return $this;
     }
 
@@ -209,6 +221,22 @@ class Bot
         return $this->cooldown;
     }
 
+    public function setParseMode(string $parse_mode): static
+    {
+        $validModes = ['Markdown', 'HTML', 'Plain'];
+        if (!in_array($parse_mode, $validModes)) {
+            throw new \InvalidArgumentException("Invalid parse mode. Must be one of: " . implode(', ', $validModes));
+        }
+        $this->config['parse_mode'] = $parse_mode;
+        return $this;
+    }
+
+
+    public function getParseMode(): string
+    {
+        return $this->config['parse_mode'];
+    }
+
     private function resetBuilder(): void
     {
         $this->builder_text = null;
@@ -231,6 +259,23 @@ class Bot
         $this->builder_chat_keypad_type = null;
     }
 
+
+    private function processTextWithMetadata(string $text, string $parse_mode): array
+    {
+        $formatter = new TrackParsed();
+        
+        if ($parse_mode === 'HTML') {
+            $parsed = $formatter->parse($text, 'HTML');
+        } else {
+            $parsed = $formatter->parse($text, 'MarkdownMode');
+        }
+
+        return [
+            'text' => $parsed['text'] ?? $text,
+            'metadata' => $parsed['metadata'] ?? null
+        ];
+    }
+
     public function send(): array
     {
         if (!$this->builder_chat_id) {
@@ -244,6 +289,16 @@ class Bot
             'chat_id' => $this->builder_chat_id,
             'text' => $this->builder_text,
         ];
+
+
+        if ($this->config['parse_mode'] !== 'Plain') {
+            $processedText = $this->processTextWithMetadata($this->builder_text, $this->config['parse_mode']);
+            $params['text'] = $processedText['text'];
+            if (!empty($processedText['metadata'])) {
+                $params['metadata'] = $processedText['metadata'];
+            }
+        }
+
         if ($this->builder_reply_to) {
             $params['reply_to_message_id'] = $this->builder_reply_to;
         }
@@ -254,6 +309,7 @@ class Bot
         if ($this->builder_inline_keypad) {
             $params['inline_keypad'] = $this->builder_inline_keypad;
         }
+
         $res = $this->apiRequest('sendMessage', $params);
         $this->lastResponse = $res;
         $this->resetBuilder();
@@ -290,7 +346,16 @@ class Bot
             $params['reply_to_message_id'] = $this->builder_reply_to;
         }
         if ($this->builder_caption) {
-            $params['text'] = $this->builder_caption;
+
+            if ($this->config['parse_mode'] !== 'Plain') {
+                $processedCaption = $this->processTextWithMetadata($this->builder_caption, $this->config['parse_mode']);
+                $params['text'] = $processedCaption['text'];
+                if (!empty($processedCaption['metadata'])) {
+                    $params['metadata'] = $processedCaption['metadata'];
+                }
+            } else {
+                $params['text'] = $this->builder_caption;
+            }
         }
         if ($this->builder_chat_keypad) {
             $params['chat_keypad'] = $this->builder_chat_keypad;
@@ -410,6 +475,15 @@ class Bot
             'message_id' => $this->builder_message_id,
             'text' => $this->builder_text,
         ];
+
+        // پردازش Markdown/Metadata برای ویرایش
+        if ($this->config['parse_mode'] !== 'Plain') {
+            $processedText = $this->processTextWithMetadata($this->builder_text, $this->config['parse_mode']);
+            $params['text'] = $processedText['text'];
+            if (!empty($processedText['metadata'])) {
+                $params['metadata'] = $processedText['metadata'];
+            }
+        }
         
         $res = $this->apiRequest('editMessageText', $params);
         $this->lastResponse = $res;
