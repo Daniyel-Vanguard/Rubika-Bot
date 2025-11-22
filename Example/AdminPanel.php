@@ -517,4 +517,202 @@ class LogBot {
                                     ->send();
                             } else {
                                 $bot->chat($chatId)
-                           
+                                    ->message("❌ هنوز اطلاعاتی ثبت نشده.")
+                                    ->chatKeypad($this->createAdminKeypad()->toArray())
+                                    ->send();
+                            }
+                        }
+                        elseif ($text == '/list') {
+                            $chatIds = $this->getChatIds();
+                            $messageText = "📋 تعداد کاربران ثبت شده: " . count($chatIds) . "\n" . implode("\n", $chatIds);
+                            $bot->chat($chatId)
+                                ->message($messageText)
+                                ->chatKeypad($this->createAdminKeypad()->toArray())
+                                ->send();
+                        }
+                        elseif ($text == '/banned') {
+                            $banned = $this->getBannedUsers();
+                            $messageText = "🚫 کاربران مسدود شده:\n";
+                            $messageText .= empty($banned) ? "هیچ" : implode("\n", $banned);
+                            $bot->chat($chatId)
+                                ->message($messageText)
+                                ->chatKeypad($this->createAdminKeypad()->toArray())
+                                ->send();
+                        }
+                        elseif ($text == '/path') {
+                            $bot->chat($chatId)
+                                ->message("📂 مسیر فایل لاگ: " . $this->logPath)
+                                ->chatKeypad($this->createAdminKeypad()->toArray())
+                                ->send();
+                        }
+                        else {
+                            // اگر پیام معمولی ادمین بود
+                            $keypad = $this->createMainKeypad(true);
+                            $bot->chat($chatId)
+                                ->chatKeypad($keypad->toArray())
+                                ->send();
+                        }
+                        break;
+                }
+            }
+        );
+
+        // هندلر پیام‌های فایل
+        $this->bot->onMessage(
+            Filters::file(),
+            function(Bot $bot, $message) {
+                $chatId = $message->chat_id;
+                $senderId = $message->sender_id;
+                
+                if ($this->isBanned($senderId)) {
+                    return;
+                }
+
+                // بارگذاری اطلاعات کاربر
+                $message->loadChatInfo($bot);
+                $username = $message->user_name ?? 'ندارد';
+
+                // ذخیره اطلاعات فایل در لاگ
+                $logData = 
+                    "📎 فایل ارسال شده\n" .
+                    "👤 فرستنده: " . $senderId . "\n" .
+                    "🔗 یوزرنیم: @" . $username . "\n" .
+                    "💬 چت آیدی: " . $chatId . "\n" .
+                    "📁 نام فایل: " . ($message->file_name ?? 'نامشخص') . "\n" .
+                    "📦 سایز فایل: " . ($message->file_size ?? 'نامشخص') . "\n" .
+                    "⏰ زمان: " . date('Y-m-d H:i:s');
+                
+                $this->saveLog($logData);
+
+                if ($senderId !== $this->adminId) {
+                    $bot->chat($chatId)->message("✅ فایل شما ثبت شد.")->send();
+                }
+            }
+        );
+    }
+
+    private function handleUserState($bot, $message, $senderId, $chatId, $text) {
+        $state = $this->userStates[$senderId];
+        
+        switch ($state) {
+            case self::STATE_BROADCAST:
+                $this->sendBroadcast($bot, $chatId, $text);
+                unset($this->userStates[$senderId]);
+                break;
+                
+            case self::STATE_SEARCH:
+                $this->handleSearch($bot, $chatId, $text);
+                unset($this->userStates[$senderId]);
+                break;
+                
+            case self::STATE_KICK:
+                $this->removeUser($text);
+                $bot->chat($chatId)
+                    ->message("✅ کاربر " . $text . " حذف شد")
+                    ->chatKeypad($this->createAdminKeypad()->toArray())
+                    ->send();
+                unset($this->userStates[$senderId]);
+                break;
+                
+            case self::STATE_BAN:
+                $this->banUser($text);
+                $bot->chat($chatId)
+                    ->message("🚫 کاربر " . $text . " مسدود شد")
+                    ->chatKeypad($this->createAdminKeypad()->toArray())
+                    ->send();
+                unset($this->userStates[$senderId]);
+                break;
+                
+            case self::STATE_UNBAN:
+                $this->unbanUser($text);
+                $bot->chat($chatId)
+                    ->message("✅ کاربر " . $text . " رفع مسدودیت شد")
+                    ->chatKeypad($this->createAdminKeypad()->toArray())
+                    ->send();
+                unset($this->userStates[$senderId]);
+                break;
+        }
+    }
+
+    private function sendBroadcast($bot, $chatId, $messageText) {
+        if (empty(trim($messageText))) {
+            $bot->chat($chatId)
+                ->message("❌ پیام نمی‌تواند خالی باشد!")
+                ->chatKeypad($this->createAdminKeypad()->toArray())
+                ->send();
+            return;
+        }
+
+        $processingMsg = $bot->chat($chatId)->message("⏳ در حال ارسال پیام به کاربران...")->send();
+        
+        $chatIds = $this->getChatIds();
+        $sentCount = 0;
+        $failedCount = 0;
+        
+        foreach ($chatIds as $cid) {
+            if ($cid !== $this->adminId && !$this->isBanned($cid)) {
+                try {
+                    $bot->chat($cid)->message($messageText)->send();
+                    $sentCount++;
+                    usleep(500000); // تأخیر 0.5 ثانیه
+                } catch (Exception $e) {
+                    $failedCount++;
+                    error_log("خطا در ارسال به $cid: " . $e->getMessage());
+                }
+            }
+        }
+        
+        $resultMessage = "✅ ارسال پیام همگانی تمام شد!\n\n";
+        $resultMessage .= "📬 ارسال شده: $sentCount\n";
+        $resultMessage .= "❌ شکست خورده: $failedCount\n";
+        $resultMessage .= "👥 کل کاربران: " . count($chatIds);
+        
+        $bot->chat($chatId)
+            ->message($resultMessage)
+            ->chatKeypad($this->createAdminKeypad()->toArray())
+            ->send();
+    }
+
+    private function handleSearch($bot, $chatId, $keyword) {
+        if (empty(trim($keyword))) {
+            $bot->chat($chatId)
+                ->message("❌ کلمه کلیدی نمی‌تواند خالی باشد!")
+                ->chatKeypad($this->createAdminKeypad()->toArray())
+                ->send();
+            return;
+        }
+
+        $results = $this->searchLogs($keyword);
+        
+        if (!empty($results)) {
+            $foundCount = 0;
+            foreach ($results as $result) {
+                if (!empty(trim($result))) {
+                    $messages = $this->splitMessage($result);
+                    $this->sendMessagesSafely($chatId, $messages);
+                    $foundCount++;
+                }
+            }
+            $bot->chat($chatId)
+                ->message("✅ جستجو کامل شد! $foundCount نتیجه یافت شد.")
+                ->chatKeypad($this->createAdminKeypad()->toArray())
+                ->send();
+        } else {
+            $bot->chat($chatId)
+                ->message("❌ هیچ نتیجه‌ای یافت نشد.")
+                ->chatKeypad($this->createAdminKeypad()->toArray())
+                ->send();
+        }
+    }
+
+    public function run() {
+        echo "🤖 ربات لاگ روشن شد!\n";
+        echo "📂 مسیر فایل لاگ: " . $this->logPath . "\n";
+        $this->bot->run();
+    }
+}
+
+// توکن بات وارد بشه!
+$token = "YOUR_BOT_TOKEN";
+$logBot = new LogBot($token);
+$logBot->run();
