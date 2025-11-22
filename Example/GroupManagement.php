@@ -485,4 +485,118 @@ class GroupManagerBot {
                             'type' => 'groups'
                         ]);
                         $bot->chat($chatId)
-                            ->message("👥 **پی
+                            ->message("👥 **پیش‌نمایش پیام برای گروه‌ها:**\n\n" . $text . "\n\nآیا از ارسال این پیام به گروه‌ها اطمینان دارید؟")
+                            ->chatKeypad($keypad->toArray())
+                            ->send();
+                        return;
+                    }
+                }
+                
+                $keypad = $this->getMainKeypad();
+                if ($userId === $this->adminId) {
+                    $keypad = $this->getAdminKeypad();
+                }
+                
+                $bot->chat($chatId)
+                    ->message("لطفاً از منوی زیر انتخاب کنید:")
+                    ->chatKeypad($keypad->toArray())
+                    ->send();
+            }
+        );
+
+        $this->bot->onMessage(Filters::any(), function(Bot $bot, $message) {
+            $messageId = $message->message_id ?? uniqid();
+            if ($this->isMessageProcessed($messageId)) {
+                return;
+            }
+            
+            $this->handleRegularMessage($bot, $message);
+        });
+    }
+
+    private function handleRegularMessage(Bot $bot, $message) {
+        $chatType = $message->chat_type ?? 'Unknown';
+        $isGroup = ($chatType === 'Group');
+        
+        if ($isGroup) {
+            $text = $message->text ?? '';
+            $chatId = $message->chat_id ?? '';
+            $groupId = $message->group_id ?? $chatId;
+            $groupTitle = $message->group_title ?? 'گروه';
+            
+            $this->saveGroup($groupId, $groupTitle);
+            
+            if ($this->containsLink($text)) {
+                echo "🔗 لینک شناسایی شد: " . $text . "\n";
+                try {
+                    $message->delete($bot);
+                    $bot->chat($chatId)->message("🔗 ارسال لینک در گروه ممنوع است!")->send();
+                } catch (Exception $e) {
+                    echo "خطا در حذف پیام: " . $e->getMessage() . "\n";
+                }
+                return;
+            }
+            
+            if ($this->containsPhoneNumber($text)) {
+                echo "📞 شماره تماس شناسایی شد: " . $text . "\n";
+                try {
+                    $message->delete($bot);
+                    $bot->chat($chatId)->message("📞 ارسال شماره تماس مجاز نیست!")->send();
+                } catch (Exception $e) {
+                    echo "خطا در حذف پیام: " . $e->getMessage() . "\n";
+                }
+                return;
+            }
+            
+            $badWords = ["بکیرم", "کیر", "کیرم", "کص", "کیرت", "به کیرت", "به کیرم", "بکیرت",
+            "ممه", "سکس", "کسکش", "کصکش", "کسخل", "کصخل", "گایید", "گایدمت",
+            "گایدیی", "گاییدیی", "جنده", "جندس", "کون", "کونت", "کونش", "کصت",
+            "ننت", "ننه", "ننتو", "ننتم", "ننش", "ننشو", "ننشن", "ننشون", "مادرجنده",
+            "مادر قهبه", "پدرسوخته", "خواهرجنده", "خارکسه", "خوارکسه", "خوارمادر",
+            "لاشی", "لاشي", "لاشى", "لاشیی", "بیشرف", "بی شرف", "بیناموس", "بی ناموس",
+            "جندگي", "جندگى", "جندگيی", "داف", "دافا", "دافال", "دافالز",
+            "پورن", "پورنو", "پورنوگرافی", "پورنوگرافى", "پورنوگرافيی",
+            "حشیش", "هروئین", "هرويين", "هروئين", "شیشه", "شيشه", "کوکائین", "کوکايين",
+            "ک*یر", "ک*ص", "ک*نی", "ج*نده", "ک*ونی", "ک*ونیم", "ک*ونیت",];
+            if ($this->containsBadWords($text, $badWords)) {
+                echo "🚫 کلمه نامناسب شناسایی شد: " . $text . "\n";
+                try {
+                    $message->delete($bot);
+                    $bot->chat($chatId)->message("🚫 استفاده از کلمات نامناسب ممنوع!")->send();
+                } catch (Exception $e) {
+                    echo "خطا در حذف پیام: " . $e->getMessage() . "\n";
+                }
+                return;
+            }
+            
+            echo "💬 پیام عادی در گروه: " . $text . "\n";
+        } else {
+            $userId = $message->sender_id;
+            $firstName = $message->first_name ?? 'کاربر';
+            $chatId = $message->chat_id;
+            
+            $this->saveUser($userId, $firstName, $message->username ?? '', $chatId);
+            echo "👤 کاربر در پیوی: " . $firstName . "\n";
+        }
+    }
+
+    public function run() {
+        echo "🤖 ربات مدیریت گروه راه‌اندازی شد...\n";
+        echo "✅ قابلیت‌های فعال:\n";
+        echo "• فیلتر لینک در گروه‌ها\n";
+        echo "• فیلتر شماره تماس\n";
+        echo "• فیلتر کلمات نامناسب\n";
+        echo "• پنل ادمین با ارسال به کاربران\n";
+        echo "• پنل ادمین با ارسال به گروه‌ها\n";
+        echo "• نمایش آمار\n";
+        echo "• سیستم جلوگیری از ارسال دوتایی\n";
+        echo "• دیتابیس JSON (بدون نیاز به MySQL)\n\n";
+        
+        echo "🔍 در حال گوش دادن به پیام‌ها...\n";
+        $this->bot->run();
+    }
+}
+
+$token = 'YOUR_BOT_TOKEN';//توکن بات اینجا قرار بگیره!
+$botManager = new GroupManagerBot($token);
+$botManager->run();
