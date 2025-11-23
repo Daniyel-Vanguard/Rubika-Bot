@@ -37,8 +37,7 @@ composer require rubikabot/rubikabot:dev-main
 
 ```php
 <?php
-require_once 'RubikaBot/Bot.php';
-require_once 'RubikaBot/Message.php';
+require_once 'vendor/autoload.php';
 // سایر فایل‌های مورد نیاز...
 
 use RubikaBot\Bot;
