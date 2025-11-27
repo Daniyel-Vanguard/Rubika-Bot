@@ -47,8 +47,8 @@ $token = "YOUR_BOT_TOKEN";
 $bot = new Bot($token);
 
 // تعریف هندلرها
-$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::command('start'), function(Bot $bot, $message) {
+    $bot->chat($message->chat_id)
         ->message("سلام! به ربات خوش آمدید 👋")
         ->send();
 });
@@ -443,22 +443,22 @@ use RubikaBot\Filters\Filters;
 $bot = new Bot('YOUR_TOKEN');
 
 // دستور start
-$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::command('start'), function(Bot $bot, $message ) {
+    $bot->chat($message->chat_id)
         ->message('به ربات خوش آمدید! 🎉')
         ->send();
 });
 
 // پاسخ به متن
-$bot->onMessage(Filters::text('سلام'), function(Bot $bot, Message $msg) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::text('سلام'), function(Bot $bot, $message) {
+    $bot->chat($message->chat_id)
         ->message('سلام! چطور می‌تونم کمک کنم؟')
         ->send();
 });
 
 // مدیریت فایل
-$bot->onMessage(Filters::file(), function(Bot $bot, Message $msg) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::file(), function(Bot $bot, $message) {
+    $bot->chat($message->chat_id)
         ->message('فایل شما دریافت شد! 📁')
         ->send();
 });
@@ -492,16 +492,16 @@ $mainMenu = Keypad::make()
         ->add(Button::simple('help', '📖 راهنما'))
         ->add(Button::simple('about', 'ℹ️ درباره ما'));
 
-$bot->onMessage(Filters::command('start'), function(Bot $bot, Message $msg) use ($mainMenu) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::command('start'), function(Bot $bot, $message) use ($mainMenu) {
+    $bot->chat($message->chat_id)
         ->message('منوی اصلی:')
         ->inlineKeypad($mainMenu->toArray())
         ->send();
 });
 
 // مدیریت کلیک دکمه‌ها
-$bot->onMessage(Filters::button('profile'), function(Bot $bot, Message $msg) {
-    $bot->chat($msg->chat_id)
+$bot->onMessage(Filters::button('profile'), function(Bot $bot, $message) {
+    $bot->chat($message->chat_id)
         ->message('اطلاعات پروفایل شما...')
         ->send();
 });
